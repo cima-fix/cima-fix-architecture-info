@@ -1,6 +1,6 @@
-// storage.js — wrapper mínimo sobre localStorage, mismo patrón que
-// lib/storage.ts en cima-fix-research (createStorageKey + JSON get/set),
-// para no reinventar el patrón en este prototipo.
+// storage.js -- minimal localStorage wrapper, same pattern as
+// lib/storage.ts in cima-fix-research (createStorageKey + JSON get/set),
+// so we don't reinvent the pattern in this prototype.
 
 const PREFIX = "cima-fix";
 
@@ -21,8 +21,8 @@ function setItem(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
-// Datos semilla (equivalente en memoria a las filas de schema.sql,
-// ya que este prototipo no corre una BD real).
+// Seed data (in-memory equivalent of the rows in schema.sql,
+// since this prototype doesn't run a real database).
 const CATEGORIAS = ["Mobiliario", "Eléctrico", "Limpieza", "Tecnología", "Otro"];
 
 const SALONES = [
