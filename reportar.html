@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cima Fix — Reportar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <a href="index.html">Cima Fix</a>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="reportar.html" class="active">Reportar</a>
+      <a href="atender.html">Atender</a>
+      <a href="supervisar.html">Supervisar</a>
+      <a href="perfil.html">Mi perfil</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Nuevo reporte</h1>
+    <p class="subtitle">Task flow: "Reportar incidencia" (Carlos, Fase 2) — este es el flujo completo del prototipo.</p>
+
+    <!-- Error: QR no válido / salón no registrado. No se crea ticket. -->
+    <div id="qr-error" class="error-box" style="display:none;">
+      <strong>Este código no corresponde a un salón registrado.</strong>
+      <p>No se creó ningún reporte. Verifica que el QR sea el oficial del salón (sello institucional) o abre la app y elige tu salón manualmente.</p>
+      <a class="button" href="reportar.html">Elegir salón manualmente</a>
+    </div>
+
+    <form id="report-form" style="display:none;">
+      <!-- Paso 1: Categoría -->
+      <section class="step active" data-step="1">
+        <h2>1. Categoría</h2>
+        <label for="salon">Salón</label>
+        <select id="salon" required></select>
+
+        <label for="categoria">Categoría del problema</label>
+        <select id="categoria" required></select>
+
+        <button type="button" class="button" onclick="goToStep(2)">Siguiente</button>
+      </section>
+
+      <!-- Paso 2: Detalles + urgencia -->
+      <section class="step" data-step="2">
+        <h2>2. Detalles</h2>
+        <label for="descripcion">Describe brevemente el problema</label>
+        <textarea id="descripcion" rows="3" required></textarea>
+
+        <label for="urgencia">Urgencia</label>
+        <select id="urgencia" required>
+          <option value="leve">Leve</option>
+          <option value="moderado" selected>Moderado</option>
+          <option value="urgente">Urgente</option>
+        </select>
+
+        <button type="button" class="button secondary" onclick="goToStep(1)">Atrás</button>
+        <button type="button" class="button" onclick="goToStep(3)">Siguiente</button>
+      </section>
+
+      <!-- Paso 3: Confirmación -->
+      <section class="step" data-step="3">
+        <h2>3. Confirmación</h2>
+        <div class="card" id="review"></div>
+        <button type="button" class="button secondary" onclick="goToStep(2)">Atrás</button>
+        <button type="button" class="button" onclick="submitReport()">Confirmar envío</button>
+      </section>
+    </form>
+
+    <!-- Resultado -->
+    <div id="result" class="card" style="display:none;"></div>
+  </main>
+
+  <script src="js/storage.js"></script>
+  <script src="js/reportar.js"></script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cima Fix — Atender</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <a href="index.html">Cima Fix</a>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="reportar.html">Reportar</a>
+      <a href="atender.html" class="active">Atender</a>
+      <a href="supervisar.html">Supervisar</a>
+      <a href="perfil.html">Mi perfil</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Atender</h1>
+    <p class="subtitle">Reportes nuevos — datos reales del flujo "Reportar" (localStorage).</p>
+    <div id="list"></div>
+    <p class="subtitle" style="margin-top:2rem;">"Mis asignados" y "Horarios del salón" quedan como placeholder — fuera del task flow implementado en este prototipo.</p>
+  </main>
+
+  <script src="js/storage.js"></script>
+  <script>
+    const REPORTS_KEY = createStorageKey("reportes");
+
+    function render() {
+      const reports = getItem(REPORTS_KEY, []).slice().reverse();
+      const list = document.getElementById("list");
+
+      if (reports.length === 0) {
+        list.innerHTML = '<p class="empty">Todavía no hay reportes. Créalos desde "Reportar".</p>';
+        return;
+      }
+
+      list.innerHTML = reports
+        .map(
+          (r) => `
+        <div class="report-item">
+          <div>
+            <strong>#${r.id} — ${r.salon_label}</strong><br />
+            <span class="subtitle">${r.categoria} · ${r.descripcion}</span><br />
+            <span class="badge ${r.estado}">${r.estado}</span>
+            <span class="badge ${r.urgencia}">${r.urgencia}</span>
+          </div>
+          ${
+            r.estado === "recibido"
+              ? `<button class="button" onclick="markInProgress(${r.id})">Marcar 'en progreso'</button>`
+              : ""
+          }
+        </div>`,
+        )
+        .join("");
+    }
+
+    function markInProgress(id) {
+      const reports = getItem(REPORTS_KEY, []);
+      const report = reports.find((r) => r.id === id);
+      if (report) report.estado = "en_progreso";
+      setItem(REPORTS_KEY, reports);
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>
