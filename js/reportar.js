@@ -1,15 +1,15 @@
-// reportar.js — task flow "Reportar incidencia" (Carlos, Fase 2) de inicio a fin.
+// reportar.js -- "Reportar incidencia" task flow (Carlos, Fase 2), end to end.
 //
-// Cubre lo que pide el task flow:
-//  - Ruta feliz: salón -> categoría -> detalles+urgencia -> confirmar -> ticket creado
-//  - Side door: llega con ?salon=<id> (simula el QR) en vez de elegir manualmente
-//  - Errático 1: QR no válido -> no crea ticket, muestra error explícito
-//  - Errático 2: abandona a mitad del formulario -> borrador local, se recupera al volver
-//  - Errático 3: reporta lo mismo que hace <1 hora -> pregunta antes de duplicar
+// Covers what the task flow asks for:
+//  - Happy path: salon -> category -> details+urgency -> confirm -> ticket created
+//  - Side door: arrives with ?salon=<id> (simulates the QR) instead of picking manually
+//  - Erratic 1: invalid QR -> no ticket created, shows an explicit error
+//  - Erratic 2: abandons mid-form -> local draft, recovered on return
+//  - Erratic 3: reports the same thing <1 hour ago -> asks before duplicating
 
 const REPORTS_KEY = createStorageKey("reportes");
 const DRAFT_KEY = createStorageKey("reportes:borrador");
-const DEMO_USER_ID = 1; // usuario "logueado" simulado para este prototipo
+const DEMO_USER_ID = 1; // simulated "logged-in" user for this prototype
 
 const form = document.getElementById("report-form");
 const qrError = document.getElementById("qr-error");
@@ -22,7 +22,7 @@ function init() {
   const params = new URLSearchParams(window.location.search);
   const qrSalon = params.get("salon");
 
-  // Errático: QR no válido / salón no registrado -> no se crea ticket
+  // Erratic: invalid QR / unregistered salon -> no ticket is created
   if (qrSalon && !findSalon(qrSalon)) {
     qrError.style.display = "block";
     return;
@@ -33,7 +33,7 @@ function init() {
 
   if (qrSalon) {
     salonSelect.value = qrSalon;
-    salonSelect.disabled = true; // vino del QR, no se elige a mano
+    salonSelect.disabled = true; // came from the QR, not picked by hand
   }
 
   restoreDraftIfAny();
@@ -49,7 +49,7 @@ function populateSelects() {
   categoriaSelect.innerHTML = CATEGORIAS.map((c) => `<option value="${c}">${c}</option>`).join("");
 }
 
-// Errático: abandono a mitad de formulario -> borrador local
+// Erratic: mid-form abandonment -> local draft
 function saveDraft() {
   setItem(DRAFT_KEY, {
     salon: salonSelect.value,
@@ -65,7 +65,7 @@ function restoreDraftIfAny() {
   const hasContent = draft.descripcion && draft.descripcion.trim().length > 0;
   if (!hasContent) return;
 
-  const resume = confirm("Tienes un reporte sin terminar. ¿Quieres continuarlo?");
+  const resume = confirm("You have an unfinished report. Do you want to continue it?");
   if (resume) {
     salonSelect.value = draft.salon || salonSelect.value;
     categoriaSelect.value = draft.categoria || categoriaSelect.value;
@@ -93,7 +93,7 @@ function renderReview() {
   `;
 }
 
-// Errático: posible duplicado (<1 hora, mismo salón + categoría)
+// Erratic: possible duplicate (<1 hour, same salon + category)
 function findRecentDuplicate(reports, salonId, categoria) {
   const oneHourAgo = Date.now() - 60 * 60 * 1000;
   return reports.find(
@@ -110,13 +110,13 @@ function submitReport() {
 
   if (duplicate) {
     const sameIssue = confirm(
-      `Ya reportaste "${duplicate.categoria}" en este salón hace menos de 1 hora (folio #${duplicate.id}). ¿Es lo mismo que reportaste antes?`,
+      `You already reported "${duplicate.categoria}" in this salon less than 1 hour ago (ticket #${duplicate.id}). Is this the same thing you reported before?`,
     );
     if (sameIssue) {
       showResult(duplicate, true);
-      return; // no se crea un ticket duplicado
+      return; // don't create a duplicate ticket
     }
-    // si no es lo mismo, se continúa y se crea un reporte nuevo
+    // if it's not the same, continue and create a new report
   }
 
   const salon = findSalon(salonSelect.value);
@@ -144,11 +144,11 @@ function showResult(report, wasDuplicate) {
   const result = document.getElementById("result");
   result.style.display = "block";
   result.innerHTML = `
-    <h2>${wasDuplicate ? "Reporte ya existente" : "Reporte creado"}</h2>
-    <p>Folio <strong>#${report.id}</strong> — <span class="badge ${report.estado}">${report.estado}</span></p>
+    <h2>${wasDuplicate ? "Existing report" : "Report created"}</h2>
+    <p>Ticket <strong>#${report.id}</strong> — <span class="badge ${report.estado}">${report.estado}</span></p>
     <p>${report.salon_label} · ${report.categoria} · <span class="badge ${report.urgencia}">${report.urgencia}</span></p>
-    <p class="subtitle">Puedes ver su estado en <a href="atender.html">Atender</a>.</p>
-    <a class="button" href="reportar.html">Reportar otra cosa</a>
+    <p class="subtitle">You can check its status in <a href="atender.html">Atender</a>.</p>
+    <a class="button" href="reportar.html">Report something else</a>
   `;
 }
 
